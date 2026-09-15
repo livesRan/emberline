@@ -6,12 +6,7 @@ terraform {
       version = "~> 3.60.0"
     }
   }
-  backend "azurerm" {
-    resource_group_name  = "rg-emberline-tfstate"
-    storage_account_name = "saemberlinetfstate"
-    container_name       = "tfstate"
-    key                  = "prod.terraform.tfstate"
-  }
+
 }
 
 provider "azurerm" {
