@@ -1,0 +1,30 @@
+name: TF‑Full‑Deploy All Resources
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: Azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: |
+          cd terraform/single
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd terraform/single
+          terraform apply -auto-approve \
+            -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
+            -var="mysql_admin_password=${{ secrets.MYSQL_ADMIN_PASSWORD }}"
