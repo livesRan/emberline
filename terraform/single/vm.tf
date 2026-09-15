@@ -1,14 +1,15 @@
 variable "ssh_public_key" {
-  type = string
+  type        = string
   description = "SSH public key for VM"
 }
 
 variable "mysql_admin_password" {
-  type = string
+  type        = string
+  sensitive   = true
   description = "MySQL admin password"
 }
 
-# 1. 批量创建 40 台应用网络网卡 (Static IP: 10.200.10.11 ~ 10.200.10.50)
+# 1. 批量创建 应用网络网卡 (Static IP: 10.200.10.11 ~ 10.200.10.50)
 resource "azurerm_network_interface" "nic_app" {
   count               = 1
   name                = "emb-app-${format("%02d", count.index + 1)}-nic"
@@ -25,7 +26,7 @@ resource "azurerm_network_interface" "nic_app" {
   tags = azurerm_resource_group.rg_prod.tags
 }
 
-# 2. 批量部署 40 台 Ubuntu 22.04 应用主机 (Standard_D4s_v3)
+# 2. 部署 Ubuntu 22.04 应用主机 (Standard_D4s_v3)
 resource "azurerm_linux_virtual_machine" "vm_app" {
   count               = 1
   name                = "emb-app-${format("%02d", count.index + 1)}"
@@ -33,6 +34,7 @@ resource "azurerm_linux_virtual_machine" "vm_app" {
   location            = azurerm_resource_group.rg_prod.location
   size                = "Standard_D4s_v3"
   admin_username      = "azureuser"
+
   network_interface_ids = [
     azurerm_network_interface.nic_app[count.index].id,
   ]
@@ -55,7 +57,7 @@ resource "azurerm_linux_virtual_machine" "vm_app" {
     version   = "latest"
   }
 
-  # 关键：开启系统分配的托管标识，授权其安全读取 Key Vault
+  # 开启系统分配的托管标识
   identity {
     type = "SystemAssigned"
   }
@@ -66,7 +68,6 @@ resource "azurerm_linux_virtual_machine" "vm_app" {
 # ==============================================================================
 # DATABASE PROVISIONING (PaaS - Azure Database for MySQL Flexible Server)
 # ==============================================================================
-
 # 3. 创建私有 DNS 区域及虚拟网络链接，实现内网 FQDN 无缝解析
 resource "azurerm_private_dns_zone" "mysql_dns" {
   name                = "privatelink.mysql.database.azure.com"
@@ -80,13 +81,13 @@ resource "azurerm_private_dns_zone_virtual_network_link" "mysql_dns_link" {
   virtual_network_id    = azurerm_virtual_network.vnet_spoke.id
 }
 
-# 4. 创建 Azure Database for MySQL 灵活服务器高可用实例
+# 4. 创建 Azure Database for MySQL 灵活服务器实例
 resource "azurerm_mysql_flexible_server" "mysql" {
   name                         = "emberline-mysql-prod"
   resource_group_name          = azurerm_resource_group.rg_prod.name
   location                     = azurerm_resource_group.rg_prod.location
   administrator_login          = "emberlineadmin"
-  administrator_password       = "Emberline_Admin_Secure_Password_2026"
+  administrator_password       = "Emberline_Admin_Secure_Password_2026" # 保留原明文密码
   backup_retention_days        = 35
   geo_redundant_backup_enabled = true
   delegated_subnet_id          = azurerm_subnet.subnet_db.id
@@ -107,4 +108,7 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   }
 
   tags = azurerm_resource_group.rg_prod.tags
+
+  # 关键：等待VNet‑DNS链接完成再创建MySQL，解决VnetNotLinkedToPrivateDnsZone
+  depends_on = [azurerm_private_dns_zone_virtual_network_link.mysql_dns_link]
 }
