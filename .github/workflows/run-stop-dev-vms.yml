@@ -1,0 +1,21 @@
+name: Script - Run stop-dev-vms.sh
+on:
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: Azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Add execute permission
+        run: chmod +x ./stop-dev-vms.sh
+
+      - name: Run stop-dev-vms.sh
+        run: bash ./stop-dev-vms.sh
