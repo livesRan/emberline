@@ -1,6 +1,6 @@
 # 1. 批量创建 40 台应用网络网卡 (Static IP: 10.200.10.11 ~ 10.200.10.50)
 resource "azurerm_network_interface" "nic_app" {
-  count               = 40
+  count               = 1
   name                = "emb-app-${format("%02d", count.index + 1)}-nic"
   location            = azurerm_resource_group.rg_prod.location
   resource_group_name = azurerm_resource_group.rg_prod.name
@@ -17,7 +17,7 @@ resource "azurerm_network_interface" "nic_app" {
 
 # 2. 批量部署 40 台 Ubuntu 22.04 应用主机 (Standard_D4s_v3)
 resource "azurerm_linux_virtual_machine" "vm_app" {
-  count               = 40
+  count               = 1
   name                = "emb-app-${format("%02d", count.index + 1)}"
   resource_group_name = azurerm_resource_group.rg_prod.name
   location            = azurerm_resource_group.rg_prod.location
