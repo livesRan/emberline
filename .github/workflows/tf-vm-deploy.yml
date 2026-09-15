@@ -1,0 +1,28 @@
+name: TF - Deploy vm.tf
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-vm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: Azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init for vm
+        run: |
+          cd terraform/vm
+          terraform init
+
+      - name: Terraform Apply vm resources
+        run: |
+          cd terraform/vm
+          terraform apply -auto-approve
