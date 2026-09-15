@@ -92,7 +92,6 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   delegated_subnet_id          = azurerm_subnet.subnet_db.id
   private_dns_zone_id          = azurerm_private_dns_zone.mysql_dns.id
   sku_name                     = "Standard_B1ms"
-  tier                         = "Burstable"
   version                      = "8.0"
   zone                         = "1"
 
