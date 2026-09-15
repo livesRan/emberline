@@ -1,3 +1,13 @@
+variable "ssh_public_key" {
+  type = string
+  description = "SSH public key for VM"
+}
+
+variable "mysql_admin_password" {
+  type = string
+  description = "MySQL admin password"
+}
+
 # 1. 批量创建 40 台应用网络网卡 (Static IP: 10.200.10.11 ~ 10.200.10.50)
 resource "azurerm_network_interface" "nic_app" {
   count               = 1
