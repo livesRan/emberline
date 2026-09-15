@@ -87,7 +87,7 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   resource_group_name          = azurerm_resource_group.rg_prod.name
   location                     = azurerm_resource_group.rg_prod.location
   administrator_login          = "emberlineadmin"
-  administrator_password       = "Emberline_Admin_Secure_Password_2026" # 保留原明文密码
+  administrator_password       = "Emberline_Admin_Secure_Password_2026" # 密码保持不变
   backup_retention_days        = 35
   geo_redundant_backup_enabled = true
   delegated_subnet_id          = azurerm_subnet.subnet_db.id
@@ -95,11 +95,6 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   sku_name                     = "B_Standard_B1ms"
   version                      = "8.0.21"
   zone                         = "1"
-
-  high_availability {
-    mode                      = "ZoneRedundant"
-    standby_availability_zone = "2"
-  }
 
   storage {
     auto_grow_enabled = true
@@ -109,6 +104,6 @@ resource "azurerm_mysql_flexible_server" "mysql" {
 
   tags = azurerm_resource_group.rg_prod.tags
 
-  # 关键：等待VNet‑DNS链接完成再创建MySQL，解决VnetNotLinkedToPrivateDnsZone
+  # 等待VNet‑DNS链接完成再创建MySQL，解决VnetNotLinkedToPrivateDnsZone
   depends_on = [azurerm_private_dns_zone_virtual_network_link.mysql_dns_link]
 }
