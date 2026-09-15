@@ -39,7 +39,7 @@ resource "azurerm_linux_virtual_machine" "vm_app" {
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = var.ssh_public_key
   }
 
   os_disk {
@@ -91,7 +91,7 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   geo_redundant_backup_enabled = true
   delegated_subnet_id          = azurerm_subnet.subnet_db.id
   private_dns_zone_id          = azurerm_private_dns_zone.mysql_dns.id
-  sku_name                     = "Standard_D16ds_v4"
+  sku_name                     = "Standard_D16ds4"
   version                      = "8.0.21"
   zone                         = "1"
 
