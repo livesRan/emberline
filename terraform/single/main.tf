@@ -12,6 +12,8 @@ terraform {
 provider "azurerm" {
   features {}
   subscription_id = "3bbc5821-b30f-476a-81c2-795ae462405a"
+  # 新增下面这一行
+  skip_provider_registration = true
 }
 
 # 1. 创建核心生产资源组
