@@ -81,7 +81,7 @@ resource "azurerm_network_security_group" "nsg_db" {
   # 默认拦截所有其余未授权流量
   security_rule {
     name                       = "Deny-All-Inbound"
-    priority                   = 65000
+    priority                   = 200
     direction                  = "Inbound"
     access                     = "Deny"
     protocol                   = "*"
